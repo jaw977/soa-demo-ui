@@ -1,0 +1,15 @@
+{
+  "name": "soa-demo-ui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ui-server.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "Jason Waag",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}

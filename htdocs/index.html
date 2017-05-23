@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Microservices Demo</title>
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.js"></script>
+		<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<style>
+a.disabledLink { color:lightgrey; pointer-events:none; }
+		</style>
+	</head>
+	<body>
+		<div id="app" class="container">
+			<p style="text-align:center"><b>Simple marketplace powered by Node.js Microservices - Demo / POC</b></p>
+			<p style="text-align:center" v-show="! user">
+				<button type="button" class="btn btn-primary" @click="mode='login'">Log In</button>
+				&nbsp; &nbsp; &nbsp;
+				<button type="button" class="btn btn-primary" @click="mode='register'">Register</button>
+			</p>
+			<p style="text-align:center" v-show="user">
+				Welcome {{user.username}}
+				&nbsp; &nbsp; &nbsp;
+				<button type="button" class="btn" @click="addListingDisplay">Submit Assets</button>
+				&nbsp; &nbsp; &nbsp;
+				<button type="button" class="btn" @click="logout">Log Out</button>
+			</p>
+			<br>
+			
+			<template v-if="mode == 'login' || mode == 'register'">
+				<div class="row">
+					<div class="col-md-4">&nbsp;</div>
+					<div class="col-md-4">
+						<div class="panel panel-info">
+							<div class="panel-heading">
+								<h3 class="panel-title" style="text-align:center;">{{mode == 'login' ? 'Login' : 'Register'}}</h3>
+							</div>
+							<div style="text-align: center;" class="panel-body">
+								<input type="text" v-model="username" class="form-control" placeholder="Username">
+								<br>
+								<input type="password" v-model="password" class="form-control" placeholder="Password">
+								<br>
+								<button type="button" class="btn btn-primary" @click="submit">Submit</button>
+								&nbsp; &nbsp; &nbsp;
+								<button type="button" class="btn" @click="mode = 'listings'">Cancel</button>
+							</div>
+						</div>
+						<p v-if="error" style="color:red;">Error: {{error}}</p>
+						<p v-if="registeredUsername" style="color:green;">Successfully registered as {{registeredUsername}}.  Login to continue</p>
+					</div>
+				</div>
+			</template>
+			
+			<p v-if="status" :style="'text-align:center;color:'+(status.type == 'error' ? 'red' : 'green')">{{status.message}}</p>
+			
+			<template v-if="mode == 'listings'">
+				<div class="row">
+					<div class="col-md-2">&nbsp;</div>
+					<div class="col-md-3"><input type="text" v-model="category" class="form-control" placeholder="Enter Category"></div>
+					<div class="col-md-3"><input type="text" v-model="seller" class="form-control" placeholder="Enter Seller"></div>
+					<div class="col-md-2"><button type="button" class="btn btn-primary" @click="search">Search For Listings</button></div>
+				</div>
+				<br>
+				<template v-if="searchResults.count">
+					<p style="text-align: center;">
+						<a href='#' :class='prevPageClass' @click='clickPrevPage'>&lt; &lt; Prev. Page</a>
+						&nbsp; &nbsp; &nbsp;
+						Displaying {{searchResults.fromNumber}} to {{searchResults.toNumber}} of {{searchResults.count}} listings.
+						&nbsp; &nbsp; &nbsp;
+						<a href='#' :class='nextPageClass' @click='clickNextPage'>Next page &gt; &gt;</a>
+					</p>
+					<table class="table">
+						<tr><th>Listing ID</th><th>Category</th><th>Seller</th><th>Title</th><th>Current Bid</th><th v-if="user">Bid Status</th>
+						<tr v-for="listing in searchResults.listings">
+							<td>{{listing.listingId}}</td>
+							<td>{{listing.category}}</td>
+							<td>{{listing.user.username}}</td>
+							<td>{{listing.title}}</td>
+							<td>
+								${{listing.currentBidAmount}}
+								<template v-if="listing.numberOfBids">
+									<a href='#' @click='bidHistory(listing.listingId)'>({{listing.numberOfBids}} bids)</a>
+								</template>
+								<template v-else>(0 bids)</template>
+							</td>
+							<template v-if="user">
+								<td>
+									<template v-if="listing.sellerId == user.userId">N/A</template>
+									<span v-else-if="listing.winningBidderId == user.userId" style="color:darkgreen">Winning</span>
+									<template v-else-if="listing.listingId == listingId">
+											<input v-model='bidAmount' class='form-control' style="width:80px;display:inline;">
+											<button type='button' class='btn btn-primary' @click='clickConfirmBid'>Confirm</button>
+									</template>
+									<a v-else href='#' @click='clickPlaceBid(listing)'>Place Bid</a>
+								</td>
+								<template v-if="false && listing.listingId == listingId">
+									<td><button type='button' class='btn btn-primary'>Place Bid</button></td>
+								</template>
+							</template>
+						</tr>
+					</table>
+				</template>
+			</template>
+			
+			<template v-if="mode == 'bidHistory'">
+				<p style="text-align: center;">
+					Bid History for listing {{listingId}}
+					&nbsp; &nbsp; &nbsp;
+					<a href='#' @click="mode='listings'; listingId = 0">Back to listings</a>
+				</p>
+				<div class="row">
+					<div class="col-md-4">&nbsp;</div>
+					<div class="col-md-4">
+						<table class="table">
+							<tr><th>Bidder</th><th>Amount</th></tr>
+							<tr v-for="bid in bids"><td>{{bid.user.username}}</td><td>${{bid.amount}}</td></tr>
+						</table>
+					</div>
+				</div>
+			</template>
+			
+			<template v-if="mode == 'submitAssets'">
+				<div class="row">
+					<div class="col-md-4">&nbsp;</div>
+					<div class="col-md-4">
+						<div class="panel panel-info">
+							<div class="panel-heading">
+								<h3 class="panel-title" style="text-align:center;">Submit Assets</h3>
+							</div>
+							<div style="text-align: center;" class="panel-body">
+								<input v-model="newListing.category" class="form-control" placeholder="Category">
+								<br>
+								<input v-model="newListing.title" class="form-control" placeholder="Title">
+								<br>
+								<input v-model="newListing.amount" class="form-control" placeholder="Amount">
+								<br>
+								<button type="button" class="btn btn-primary" @click="addListingSubmit">Submit</button>
+								&nbsp; &nbsp; &nbsp;
+								<button type="button" class="btn" @click="mode = 'listings'">Cancel</button>
+							</div>
+						</div>
+						<p v-if="error" style="color:red;">Error: {{error}}</p>
+						<p v-if="listingId" style="color:green;">Successfully posted listing {{listingId}}.</p>
+					</div>
+				</div>
+			</template>
+
+		</div>
+	
+		<script src="config.js"></script>
+		<script src="app.js"></script>
+	</body>
+</html>
