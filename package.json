@@ -4,6 +4,7 @@
   "description": "",
   "main": "ui-server.js",
   "scripts": {
+    "start": "node ui-server.js",
     "test": "node test.js"
   },
   "author": "Jason Waag",
