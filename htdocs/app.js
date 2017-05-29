@@ -29,6 +29,7 @@ var vue = new Vue({
 		status: false,
 	},
 	mounted: function() {
+		this.search();
 	},
 	computed: {
 		hasPrevPage: function() { return this.page > 1; },
