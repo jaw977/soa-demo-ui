@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>Microservices Demo</title>
 		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
 		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.js"></script>
 		<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>
@@ -17,9 +17,9 @@ a.disabledLink { color:lightgrey; pointer-events:none; }
 		<div id="app" class="container">
 			<p style="text-align:center"><b>Simple marketplace powered by Node.js Microservices - Demo / POC</b></p>
 			<p style="text-align:center" v-show="! user">
-				<button type="button" class="btn btn-primary" @click="mode='login'">Log In</button>
+				<button type="button" class="btn btn-primary" @click="mode='login'; setRootRoute()">Log In</button>
 				&nbsp; &nbsp; &nbsp;
-				<button type="button" class="btn btn-primary" @click="mode='register'">Register</button>
+				<button type="button" class="btn btn-primary" @click="mode='register'; setRootRoute()">Register</button>
 			</p>
 			<p style="text-align:center" v-show="user">
 				Welcome {{user.username}}
@@ -56,7 +56,7 @@ a.disabledLink { color:lightgrey; pointer-events:none; }
 			
 			<p v-if="status" :style="'text-align:center;color:'+(status.type == 'error' ? 'red' : 'green')">{{status.message}}</p>
 			
-			<template v-if="mode == 'listings'">
+			<template v-if="mode == 'listings' && isRootRoute()">
 				<div class="row">
 					<div class="col-md-2">&nbsp;</div>
 					<div class="col-md-3"><input type="text" v-model="category" class="form-control" placeholder="Enter Category"></div>
@@ -82,7 +82,7 @@ a.disabledLink { color:lightgrey; pointer-events:none; }
 							<td>
 								${{listing.currentBidAmount}}
 								<template v-if="listing.numberOfBids">
-									<a href='#' @click='bidHistory(listing.listingId)'>({{listing.numberOfBids}} bids)</a>
+									<router-link :to='"/listing/"+listing.listingId+"/bidHistory"'>({{listing.numberOfBids}} bids)</router-link>
 								</template>
 								<template v-else>(0 bids)</template>
 							</td>
@@ -103,23 +103,6 @@ a.disabledLink { color:lightgrey; pointer-events:none; }
 						</tr>
 					</table>
 				</template>
-			</template>
-			
-			<template v-if="mode == 'bidHistory'">
-				<p style="text-align: center;">
-					Bid History for listing {{listingId}}
-					&nbsp; &nbsp; &nbsp;
-					<a href='#' @click="mode='listings'; listingId = 0">Back to listings</a>
-				</p>
-				<div class="row">
-					<div class="col-md-4">&nbsp;</div>
-					<div class="col-md-4">
-						<table class="table">
-							<tr><th>Bidder</th><th>Amount</th></tr>
-							<tr v-for="bid in bids"><td>{{bid.user.username}}</td><td>${{bid.amount}}</td></tr>
-						</table>
-					</div>
-				</div>
 			</template>
 			
 			<template v-if="mode == 'submitAssets'">
@@ -148,9 +131,13 @@ a.disabledLink { color:lightgrey; pointer-events:none; }
 				</div>
 			</template>
 
+			<router-view></router-view>
+
 		</div>
 	
 		<script src="config.js"></script>
+		<script src="ajax_promise.js"></script>
+		<script src="bid_history.js"></script>
 		<script src="app.js"></script>
 	</body>
 </html>

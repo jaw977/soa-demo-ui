@@ -1,5 +1,10 @@
+const router = new VueRouter({ routes: [
+	{ path: '/listing/:listingId/bidHistory', component: VueBidHistory, props: true, },
+]});
+
 var vue = new Vue({
 	el: '#app',
+	router: router,
 	data: {
 		user: false,
 		username: '',
@@ -19,7 +24,6 @@ var vue = new Vue({
 			listings: [],
 		},
 		listingId: false,
-		bids: [],
 		newListing:{
 			category:'',
 			title:'',
@@ -88,18 +92,11 @@ var vue = new Vue({
 					vue.searchResults = searchResults;
 				});
 		},
-		bidHistory: function(listingId) {
-			ajaxPromise({role:'bid', cmd:'list', listingId:listingId}).then( function (bids) {
-				vue.status = false;
-				vue.bids = bids;
-				vue.listingId = listingId;
-				vue.mode = 'bidHistory';
-			});
-		},
 		addListingDisplay: function() {
 			this.error = '';
 			this.listingId = false;
 			this.mode = 'submitAssets';
+			this.setRootRoute();
 		},
 		addListingSubmit: function() {
 			const message = {role:'listing', cmd:'add', token:this.token, category:this.newListing.category, title:this.newListing.title, amount:+this.newListing.amount};
@@ -129,21 +126,11 @@ var vue = new Vue({
 				}
 			});
 		},
+		isRootRoute: function() { 
+			return this.$route.path == '/'; 
+		},
+		setRootRoute: function() {
+			this.$router.push('/');
+		},
 	},
 });
-
-function ajaxPromise (msg) {
-	console.log("Req:",msg);
-	return axios.post(soaDemoConfig.apiURL, msg).then( function(response) {
-		console.log("Res:",response.data);
-		if (response.data.error == 'Invalid Token.') {
-			vue.user = false;
-			vue.mode = 'login';
-			response.data.error = 'Session expired.  Please login again.';
-		}
-		return response.data;
-	})
-	.catch( function(error) {
-		console.log("Err:",error);
-	});
-}
