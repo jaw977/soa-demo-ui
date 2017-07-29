@@ -13,3 +13,5 @@ function ajaxPromise (msg) {
 		console.log("Err:",error);
 	});
 }
+
+export { ajaxPromise };

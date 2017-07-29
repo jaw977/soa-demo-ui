@@ -1,4 +1,6 @@
-VueBidHistory = {
+import { ajaxPromise } from './ajax_promise.js';
+
+const VueBidHistory = {
 	props: ['listingId'],
 	data: () => ({ bids:[] }),
 	mounted: function() {
@@ -39,3 +41,5 @@ VueBidHistory = {
 </div>
 
 `};
+
+export { VueBidHistory };

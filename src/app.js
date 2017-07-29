@@ -1,3 +1,10 @@
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import { ajaxPromise } from './ajax_promise.js';
+import { VueBidHistory } from './bid_history.js';
+
+Vue.use(VueRouter);
+
 const router = new VueRouter({ routes: [
 	{ path: '/listing/:listingId/bidHistory', component: VueBidHistory, props: true, },
 ]});
@@ -127,7 +134,7 @@ var vue = new Vue({
 			});
 		},
 		isRootRoute: function() { 
-			return this.$route.path == '/'; 
+			return this.$route.path == '/';
 		},
 		setRootRoute: function() {
 			this.$router.push('/');

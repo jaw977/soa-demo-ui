@@ -8,6 +8,6 @@ app.get('/config.js', function (req, res) {
 	res.send(`soaDemoConfig = ${configJSON};`);
 });
 
-app.use(express.static('htdocs'));
+app.use(express.static('dist'));
 
 app.listen(process.env.PORT);
