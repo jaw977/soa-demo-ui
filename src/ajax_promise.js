@@ -1,4 +1,7 @@
-function ajaxPromise (msg) {
+import axios from 'axios';
+import Promise from 'bluebird';
+
+export default function ajaxPromise (msg) {
 	console.log("Req:",msg);
 	return axios.post(soaDemoConfig.apiURL, msg).then( function(response) {
 		console.log("Res:",response.data);
@@ -13,5 +16,3 @@ function ajaxPromise (msg) {
 		console.log("Err:",error);
 	});
 }
-
-export { ajaxPromise };

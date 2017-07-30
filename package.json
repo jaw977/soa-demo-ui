@@ -12,7 +12,10 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "axios": "^0.16.2",
+    "bluebird": "^3.5.0",
     "express": "^4.15.3",
+    "lodash": "^4.17.4",
     "vue": "^2.4.2",
     "vue-router": "^2.7.0"
   },

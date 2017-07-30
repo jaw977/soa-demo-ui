@@ -1,17 +1,15 @@
-import { ajaxPromise } from './ajax_promise.js';
+import ajaxPromise from './ajax_promise.js';
 
-const VueBidHistory = {
+export default {
 	props: ['listingId'],
 	data: () => ({ bids:[] }),
 	mounted: function() {
-		console.log(this);
 		this.getBids();
 	},
 	methods: {
 		getBids: function() {
-			const vue = this;
-			ajaxPromise({role:'bid', cmd:'list', listingId:this.listingId}).then( function (bids) {
-				vue.bids = bids;
+			ajaxPromise({role:'bid', cmd:'list', listingId:this.listingId}).then( bids => {
+				this.bids = bids;
 			});
 		},
 	},
@@ -21,7 +19,6 @@ const VueBidHistory = {
 <p style="text-align: center;">
 	Bid History for listing {{listingId}}
 	&nbsp; &nbsp; &nbsp;
-	<!--<a href='#' @click="mode='listings'; listingId = 0">Back to listings</a>-->
 	<router-link to="/">Back to listings</router-link>
 </p>
 <div class="row">
@@ -41,5 +38,3 @@ const VueBidHistory = {
 </div>
 
 `};
-
-export { VueBidHistory };
