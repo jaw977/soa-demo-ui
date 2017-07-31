@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import ajaxPromise from './ajax_promise.js';
-import VueBidHistory from './bid_history.js';
+import VueBidHistory from './bid_history.vue';
 
 Vue.use(VueRouter);
 
